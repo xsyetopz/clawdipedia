@@ -47,15 +47,15 @@ Leave out VS Code, Cloud sessions, Claude Tag, Code Review, the self-hosted runn
 Source: two gap analyses of `~/Downloads/CodeProjects/xsyetopz/claudetto/docs/` against `docs/`.
 Check each fact again in `2.1.316` before a page states it. Keep claudetto's measured numbers with their version.
 
-- [ ] 4.1 The shared enable gate of `ListSkills`, `ListPlugins`, `SearchPlugins`, `SearchSkills`, `SuggestSkills`,
+- [x] 4.1 The shared enable gate of `ListSkills`, `ListPlugins`, `SearchPlugins`, `SearchSkills`, `SuggestSkills`,
   and `SuggestPluginInstall` (`docs/reference/tools/gated-and-other.md`).
-- [ ] 4.2 The enable logic of `EnterPlanMode`, `ExitPlanMode`, and `AskUserQuestion` (`docs/reference/tools/agents-and-tasks.md`).
-- [ ] 4.3 Built-in `cc-plugin-<name>@builtin` plugins: the full list, `enabledPlugins`, and the policy-only flags
+- [x] 4.2 The enable logic of `EnterPlanMode`, `ExitPlanMode`, and `AskUserQuestion` (`docs/reference/tools/agents-and-tasks.md`).
+- [x] 4.3 Built-in `cc-plugin-<name>@builtin` plugins: the full list, `enabledPlugins`, and the policy-only flags
   (`docs/extend/mod-api/nouns-and-gates.md`).
 - [x] 4.4 `cc-plugin-responsive-mode` and the `focus_mode` section (`docs/how-it-works/system-prompt.md`).
 - [x] 4.5 How `tool.describe` resolves a description (the `tool.describe` call page).
 - [x] 4.6 Per-tool definition sizes and the deny-list savings in characters (`docs/how-it-works/context-budget.md`). The Responsive Mode prompt text is not read.
-- [ ] 4.7 `disableBundledSkills` and the Workflow tool, and `enableWorkflows: false` against `disableWorkflows: true`.
+- [x] 4.7 `disableBundledSkills` and the Workflow tool, and `enableWorkflows: false` against `disableWorkflows: true`.
 - [x] 4.8 Subagent and hook-agent limits: the hook-agent turn cap, `max_turns_reached`, `error_max_turns`,
   the spawn depth order, and `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` (`docs/extend/subagents/`). `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`: no code reads it, so it stays off the page.
 - [x] 4.9 The gates of compaction: `precomputeCompactionEnabled`, `CLAUDE_CODE_COLD_COMPACT`, the retry gate,

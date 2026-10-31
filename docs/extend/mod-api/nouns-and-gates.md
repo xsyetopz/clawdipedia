@@ -149,6 +149,18 @@ The program decides each built-in plugin in this order (`chunk-c27zh2rw.js@76952
 4. Otherwise the `enabledPlugins` key of your settings counts. A plugin that a directory you added with `--add-dir` also lists is read by the loader for that case.
 5. A value that is set decides: only `true` turns the plugin on. With no value, the plugin uses its `defaultEnabled`, and that is `true` when the plugin sets none.
 
+Only `cc-plugin-sec-default` sets the two policy-only flags in `2.1.316`. The other built-in plugins read `enabledPlugins` from your settings (the program). Only `cc-plugin-responsive-mode` and `cc-plugin-you-should-know` set `defaultEnabled: false`. To turn one on, set its id as the key:
+
+```json
+{
+  "enabledPlugins": {
+    "cc-plugin-you-should-know@builtin": true
+  }
+}
+```
+
+See [Hooks, Plugins, and Skills Settings](../../configure/settings/hooks-and-plugins.md#keys) for `enabledPlugins`.
+
 `cc-plugin-responsive-mode` sets `defaultEnabled: false`. It is also available only outside the Teams surface, and only while a server gate that you cannot set is on (the program, `chunk-mdwf4s3v.js@627`). So turn it on with `enabledPlugins` and expect it to be missing when the gate is off.
 
 ## Related Pages
