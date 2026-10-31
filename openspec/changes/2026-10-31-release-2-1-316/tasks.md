@@ -62,7 +62,8 @@ Check each fact again in `2.1.316` before a page states it. Keep claudetto's mea
   and the reactive path (`docs/how-it-works/context-and-compaction.md`).
 - [x] 4.10 The skill listing: the size of each skill, the cost of one line, the order of `skillOverrides` values,
   and the env switches for each skill (`docs/extend/skills-and-commands/bundled-skills.md`).
-- [ ] 4.11 Items G11 to G52 in `gaps.md`, less G38. `gaps.md` lists the 5 claudetto files that were not read.
+- [x] 4.11 Items G11 to G52 in `gaps.md`, less G38. `gaps.md` lists the 5 claudetto files that were not read.
+  Skipped: G16 and the per-list cuts of G15 (claudetto numbers only), and G30 (not confirmed in the program).
 
 ## 5. What Changed
 
