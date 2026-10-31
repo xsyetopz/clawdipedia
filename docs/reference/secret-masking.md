@@ -82,10 +82,25 @@ The list shows the output that a caller masks. Each caller uses one function.
 | The path and the skill summary in a permission dialog that the program sends to a connected client | `redactForDisplay` | `chunk-157f1pes.js` |
 | The preview of tool input, including the field names | `redactForDisplay` | `chunk-f2ccw312.js` |
 
+### Outputs That Keep the Secret
+
+Masking does not apply to the text of your prompt in these outputs.
+A probe sent a prompt with a fake GitHub token in the `github-pat` shape (`ghp_` and 36 letters). That shape is a `high` rule.
+The full token stayed in each of these outputs:
+
+| Output | Probe setting |
+| --- | --- |
+| The Messages API request that goes to the model | `-p` against a local stub |
+| The session transcript, `projects/<project>/<session>.jsonl` in the config folder | The same run |
+| The OpenTelemetry `user_prompt` log event | `CLAUDE_CODE_ENABLE_TELEMETRY=1`, `OTEL_LOG_USER_PROMPTS=1`, and the `console` logs exporter. A run with no telemetry did not print the token. |
+
+Source: a probe of 2.1.316 with cc-inspect `code` `cli` and `query`, which names each request, stream, and transcript file that holds a text.
+The probe covers only the prompt text. The stub cannot make the model call a tool, so tool output was not tested.
+To keep a secret out of these outputs, do not put it in a prompt. Without `OTEL_LOG_USER_PROMPTS`, the prompt is not in the OpenTelemetry events (see [Telemetry and Debug](../configure/env-vars/telemetry-and-debug.md)).
+
 :::note[Not Verified]
 This page does not list every caller of the masking functions.
 The program does not show where the error report fields go.
-It is not confirmed that the program masks the transcript file, the OpenTelemetry events, or the text that it sends to the model.
 :::
 
 ## Secret Scan
