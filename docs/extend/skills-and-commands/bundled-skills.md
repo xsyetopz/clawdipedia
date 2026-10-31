@@ -22,10 +22,29 @@ claude -p "/debug the login test fails on CI"
 
 - The setting `disableBundledSkills` and the env var `CLAUDE_CODE_DISABLE_BUNDLED_SKILLS` remove them.
   The switch is on when the env var is set or the setting is exactly `true` (the program).
-  It also removes the bundled workflow skills. Built-in commands that can be typed, such as `/doctor`, stay available to you.
+  It also empties the list of bundled workflows, so no bundled workflow remains for the `Workflow` tool to run (the program).
+  The switch does not turn the `Workflow` tool itself off. Use `disableWorkflows` for that, and see [Agents and Remote Settings](../../configure/settings/agents-and-remote.md). Built-in commands that can be typed, such as `/doctor`, stay available to you.
   The model gets a refusal that names the setting and the env var. Skills from plugins, `.claude/skills`, and `.claude/commands` are not affected.
+- Some skills have their own switch. `DISABLE_DOCTOR_COMMAND` hides `/doctor`, and the kill switch above does not remove `/doctor`.
+  `CLAUDE_CODE_DISABLE_CLAUDE_API_SKILL` removes `/claude-api`, and `CLAUDE_CODE_DISABLE_CLAUDE_CODE_SKILL` removes the `claude-code` skill (the program, `chunk-qd604jgh.js`).
+  `skillOverrides` can turn off any skill by name.
 - When the policy `allow_bundled_skills` is not granted, only names in a fixed list stay.
   The list in the program is: `artifact-diagramming`, `batch`, `claude-code-docs`, `code-review`, `commit`, `dataviz`, `debug`, `explain-usage`, `fewer-permission-prompts`, `keybindings-help`, `loop`, `memory-types`, `plugin-authoring`, `pr`, `simplify`, `update-config`, `verify`, `workflow-authoring`.
+
+## Skill Listing
+
+Claude sees each skill as one line in a listing.
+The total budget is on [Skills and Commands](index.md#loading-and-controls).
+This table holds the size of one line and the order of the `skillOverrides` values.
+Source: the program (`chunk-qd604jgh.js`).
+
+| Item | Status | Rule |
+| --- | --- | --- |
+| Size of one line | <Undocumented /> | A full line is a dash and a space, the name, a colon and a space, and the text. That is the name length plus 4 characters, plus the text. The text is the `description`, then ` - ` and `when_to_use` if set. A newline joins two lines. |
+| Cap on the text | <Documented /> | `skillListingMaxDescChars` (default 1,536) cuts the text, and the last character of the cut text is `…`. A cut text is never longer than the cap. |
+| Name shown | <Undocumented /> | The name is the skill name. When its short name is not the full name and the short name is also a name that finds this skill, the line adds the short name in parentheses. This adds characters to the line. |
+| Name-only line | <Documented /> | A dash, a space, and the name only. That is the name length plus 2 characters. A skill set to `name-only` always gets this form. |
+| Order of `skillOverrides` values | <Undocumented /> | From shown most to shown least: `on`, `name-only`, `user-invocable-only`, `off`. When several keys of one skill match (its name, an alias, or its short name), the value that shows least wins. |
 
 ## Skills
 

@@ -112,7 +112,7 @@ stateDiagram-v2
 | Manual | <Documented /> | It starts with `/compact`. The trigger is `manual`. |
 | Reactive | <Undocumented /> | The API refuses a request as too long, and Claude Code compacts and tries again. Since `2.1.311`, this also covers a standard-window session that goes over 200K tokens and gets "Usage credits required for 1M context" (`chunk-8qajn51r.js:6009`). It compacts and continues. |
 | Precomputed | <Undocumented /> | A summary made ahead of time replaces the conversation. |
-| Larger-model retry | <Undocumented /> | Claude Code can retry a failed compaction on a model with a larger window. |
+| Larger-model retry | <Undocumented /> | Claude Code can try the compaction first on a model with a larger window. If that fails, the normal compaction runs. |
 | Server side | <Undocumented /> | The beta `context-management-2025-06-27` lets the API edit the context. |
 
 Since `2.1.311`, when the model's reply to a compaction request has no `<summary>` block, Claude Code usually asks once more for the summary before it replaces the conversation (`chunk-2ht8z368.js:108786`).
@@ -132,10 +132,10 @@ Source: the program (`chunk-qd604jgh.js@1556935` to `@2455980`). All rows are <U
 | Failure breaker | After 3 failed auto-compactions in a row, the check returns without a new try. |
 | Rapid-refill breaker | A refill within 3 turns of the last compaction adds 1 to a counter. Any later refill resets it. At 3, auto-compaction stops with the `Autocompact is thrashing` error. |
 | Fixed prefix check | When the system prompt and tools alone are over the threshold, Claude Code logs `compaction cannot help` and goes on. |
-| Reactive route | A window that is not the model default, or an overflow in the auto mode classifier, routes the compaction through the reactive path, not the plain one. |
+| Reactive route | A window that is not the model default, an overflow in the auto mode classifier, or a compaction that already names a model (the larger-model retry) routes the compaction through the reactive path, not the plain one. The path needs a query source, so a call with none takes the plain path. The reactive path may ask for a last-resort compaction only when the context is at the blocked level or the classifier overflowed (`chunk-qd604jgh.js`). |
 | Precompute | `precomputeCompactionEnabled` (default `true`, needs auto-compact on) lets Claude Code write the summary ahead of time. The path also needs a server gate. It starts earlier than the compact threshold, at `effective - round(effective * fraction)` or the compact threshold, whichever is smaller. |
 | Cold compaction | `CLAUDE_CODE_COLD_COMPACT` makes auto-compaction send the full history in a plain request. It sets `stripNonEssential`, which turns off the request that shares the prompt cache prefix. |
-| Larger-model retry | A failed compaction can run once more on a model with a larger window. |
+| Larger-model retry | This runs before the normal compaction, not after it. The gate needs at least these: the compaction names no model yet, no earlier auto-compaction failed in a row, the model of the latest assistant reply has a larger window than the current model, and the context is at the blocked level. The attempt gets 1 API try. If it fails, the normal compaction runs next (`chunk-qd604jgh.js`). |
 | Prompt-too-long retry | When the compaction request itself is too long, Claude Code drops the oldest message groups and sends it again. `compactionApiAttemptsLeft` caps the API attempts. At 0 the retry stops. |
 | Second ask | A reply with no `<summary>` block gets one more request. |
 

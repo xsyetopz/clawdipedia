@@ -56,11 +56,11 @@ Check each fact again in `2.1.316` before a page states it. Keep claudetto's mea
 - [x] 4.5 How `tool.describe` resolves a description (the `tool.describe` call page).
 - [x] 4.6 Per-tool definition sizes and the deny-list savings in characters (`docs/how-it-works/context-budget.md`). The Responsive Mode prompt text is not read.
 - [ ] 4.7 `disableBundledSkills` and the Workflow tool, and `enableWorkflows: false` against `disableWorkflows: true`.
-- [ ] 4.8 Subagent and hook-agent limits: the hook-agent turn cap, `max_turns_reached`, `error_max_turns`,
-  the spawn depth order, and `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` (`docs/extend/subagents/`).
-- [ ] 4.9 The gates of compaction: `precomputeCompactionEnabled`, `CLAUDE_CODE_COLD_COMPACT`, the retry gate,
+- [x] 4.8 Subagent and hook-agent limits: the hook-agent turn cap, `max_turns_reached`, `error_max_turns`,
+  the spawn depth order, and `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` (`docs/extend/subagents/`). `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`: no code reads it, so it stays off the page.
+- [x] 4.9 The gates of compaction: `precomputeCompactionEnabled`, `CLAUDE_CODE_COLD_COMPACT`, the retry gate,
   and the reactive path (`docs/how-it-works/context-and-compaction.md`).
-- [ ] 4.10 The skill listing: the size of each skill, the cost of one line, the order of `skillOverrides` values,
+- [x] 4.10 The skill listing: the size of each skill, the cost of one line, the order of `skillOverrides` values,
   and the env switches for each skill (`docs/extend/skills-and-commands/bundled-skills.md`).
 - [ ] 4.11 Items G11 to G52 in `gaps.md`, less G38. `gaps.md` lists the 5 claudetto files that were not read.
 
