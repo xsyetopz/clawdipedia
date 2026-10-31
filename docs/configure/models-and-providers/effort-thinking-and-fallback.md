@@ -24,21 +24,6 @@ It comes from the catalog (<Undocumented />). `claude-opus-4-7` has the default 
 | Effort note in the prompt | <Undocumented /> | The prompt shows the level and `/effort`. Since `2.1.312`, it shows `may wait for your next message` in place of `/effort` only while the request has not yet carried the shown level (see the note below). |
 | Spinner effort | <Undocumented /> | The spinner adds the text `with <level> effort`. Since `2.1.312`, the level is the one the request carried (see the note below). |
 
-### Where the Saved Level Comes From
-
-For the main session, `CLAUDE_CODE_EFFORT_LEVEL` wins over saved levels.
-Among saved levels, Claude Code takes the first source that applies:
-
-1. The level saved for the model in `modelSettings`. It reads the settings files from the highest priority down, and a policy or flag file counts first.
-2. A top-level `effortLevel` from a project, local, policy, or flag settings file. It applies to every model.
-3. A top-level `effortLevel` in your user settings file. This is the older form. It applies only to a fixed list of older models that the program pins, and only while no other file sets a top-level `effortLevel`. A new install pins none, so the key does nothing there.
-4. The model default.
-
-To set a floor for a newer model in your user file, write it inside `modelSettings` (the program, `chunk-n8t0s848.js`).
-For a subagent, the order is the agent file `effort`, the inherited effort, `CLAUDE_CODE_SUBAGENT_EFFORT`, then the order above (see [Models and Effort](../env-vars/models-and-effort.md)).
-
-Source: [Model Configuration](https://code.claude.com/docs/en/model-config), section "Adjust effort level", and the program.
-
 Source for `ultrathink`: the [Claude Code changelog](https://code.claude.com/docs/en/changelog) and the program.
 These four models are the ones whose catalog entry has the capability `per_turn_effort` (`chunk-dmakgjeg.js:207`, `:423`, `:712`, `:805`).
 At submit, `chunk-8qajn51r.js:4138` sets the turn effort to `xhigh`. A prompt typed during a turn gets the same level (`chunk-qw7sm5zw.js:3626`).
@@ -67,6 +52,21 @@ In `2.1.311`, the spinner function took no sent level (`chunk-a4650erw.js:1503-1
 | `claude-opus-5-5` | medium | 0.48, 0.66, 1, 1.66, 3.44 |
 | `claude-sonnet-5` | high | 0.47, 0.74, 1, 2.41, 5.59 |
 | `claude-sonnet-5-5` | medium | 0.49, 0.54, 1, 1.87, 5.5 |
+
+### Where the Saved Level Comes From
+
+For the main session, `CLAUDE_CODE_EFFORT_LEVEL` wins over saved levels.
+Among saved levels, Claude Code takes the first source that applies:
+
+1. The level saved for the model in `modelSettings`. It reads the settings files from the highest priority down, and a policy or flag file counts first.
+2. A top-level `effortLevel` from a project, local, policy, or flag settings file. It applies to every model.
+3. A top-level `effortLevel` in your user settings file. This is the older form. It applies only to a fixed list of older models that the program pins, and only while no other file sets a top-level `effortLevel`. A new install pins none, so the key does nothing there.
+4. The model default.
+
+To set a floor for a newer model in your user file, write it inside `modelSettings` (the program, `chunk-n8t0s848.js`).
+For a subagent, the order is the agent file `effort`, the inherited effort, `CLAUDE_CODE_SUBAGENT_EFFORT`, then the order above (see [Models and Effort](../env-vars/models-and-effort.md)).
+
+Source: [Model Configuration](https://code.claude.com/docs/en/model-config), section "Adjust effort level", and the program.
 
 ## Thinking
 

@@ -1,4 +1,9 @@
 {
+  "docs/reference/tools/files.md#when-glob-and-grep-are-offered:3ddf733a": {
+    "kind": "manual",
+    "probes": [],
+    "note": "embedded bfs and ugrep gate read in the cleaned 2.1.316 code (chunk-qd604jgh.js); tool lists checked with cc-inspect code cli against the local stub for 2.1.314 and 2.1.316"
+  },
   "docs/reference/probes.md#managed-folder-probe:51acf199": {
     "kind": "behaviour",
     "probes": ["managed.baseline.mcp-run"]

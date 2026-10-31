@@ -7,9 +7,9 @@ server (`inspect/mcp/dist/server.js`) from a stdio client, with `CC_INSPECT_CACH
 
 ## 1. Toolkit Run
 
-- [ ] 1.1 `bun run release:all -- --from 2.1.314 --to 2.1.316` (check, schemas, diff, clean, prompts
+- [x] 1.1 `bun run release:all -- --from 2.1.314 --to 2.1.316` (check, schemas, diff, clean, prompts
   `--no-render`, probe:print, probe:pty, facts `--check`, facts, compare).
-- [ ] 1.2 `bun run release:prompts -- --from 2.1.314 --to 2.1.316`, which renders `docs/prompts/`.
+- [x] 1.2 `bun run release:prompts -- --from 2.1.314 --to 2.1.316`, which renders `docs/prompts/`.
   Review `git diff docs/prompts/`.
 - [ ] 1.3 `bun run release:probe:live -- --yes`. Standing approval is in `CLAUDE.local.md`.
 - [ ] 1.4 `bun run release:probe:managed`. It needs the user to run two `sudo` commands.
