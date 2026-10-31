@@ -11,6 +11,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, normalize } from "node:path";
+import { filesOf } from "./requests.ts";
 
 export const FAKE_KEY = "sk-ant-fake-probe";
 export type Sent = {
@@ -28,6 +29,7 @@ export type RunResult = {
   stderr: string;
   /** The stream-json events the program wrote to stdout. */
   events: Record<string, unknown>[];
+  files: Record<string, string>; // The `.jsonl` files of the config folder at exit, such as the transcript.
   dirs: Dirs;
 };
 
@@ -244,7 +246,8 @@ export const runArgs = async (
       throw new Error(
         `a request had another host or key: ${bad.map((r) => `${r.host}${r.path}`).join(", ")}`,
       );
-    return { exit, requests, stdout: out, stderr, events, dirs };
+    const wrote = filesOf(dirs.config);
+    return { exit, requests, stdout: out, stderr, events, files: wrote, dirs };
   } finally {
     stub?.stop(true);
     for (const d of made) rmSync(d, { recursive: true, force: true });

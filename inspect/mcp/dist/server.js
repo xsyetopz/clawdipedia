@@ -25211,7 +25211,7 @@ var EMPTY_COMPLETION_RESULT = {
 // inspect/mcp/package.json
 var package_default = {
   name: "cc-inspect-mcp",
-  version: "0.11.0",
+  version: "0.12.0",
   private: true,
   license: "MIT",
   type: "module",
@@ -39593,6 +39593,15 @@ var readable = async (binary, module) => {
 };
 
 // inspect/mcp/src/requests.ts
+import { readFileSync as readFileSync5 } from "fs";
+import { join as join5 } from "path";
+var filesOf = (dir) => Object.fromEntries([...new Bun.Glob("**/*.jsonl").scanSync({ cwd: dir, dot: true })].sort().map((p) => [p, readFileSync5(join5(dir, p), "utf8")]));
+var placesOf = (r, q) => [
+  ...r.requests.flatMap((x, i) => JSON.stringify(x.body ?? "").includes(q) ? [`request ${i + 1} ${x.method} ${x.path}`] : []),
+  ...r.stdout.includes(q) ? ["stdout"] : [],
+  ...r.stderr.includes(q) ? ["stderr"] : [],
+  ...Object.entries(r.files).filter(([, t]) => t.includes(q)).map(([p]) => `file ${p}`)
+];
 var isTurn = (path) => path.startsWith("/v1/messages") && !path.includes("count_tokens");
 var toolNames = (r) => r.requests.filter((q) => isTurn(q.path)).map((q) => (q.body?.tools ?? []).map((t) => t.name).filter((n) => typeof n === "string"));
 var resultText = (r) => {
@@ -39611,7 +39620,7 @@ import {
   writeFileSync as writeFileSync3
 } from "fs";
 import { tmpdir as tmpdir3 } from "os";
-import { dirname as dirname2, isAbsolute, join as join5, normalize } from "path";
+import { dirname as dirname2, isAbsolute, join as join6, normalize } from "path";
 var FAKE_KEY = "sk-ant-fake-probe";
 var sse = (ev, d) => `event: ${ev}
 data: ${JSON.stringify(d)}
@@ -39643,7 +39652,7 @@ var STREAM = sse("message_start", {
   usage: { output_tokens: 5 }
 }) + sse("message_stop", { type: "message_stop" });
 var UNSAFE = /KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL|SESSION|PROXY|BASE_URL|ENDPOINT|HEADERS|^(NODE|BUN)_OPTIONS$|^(LD|DYLD)_/i;
-var tempDir = (p) => realpathSync2(mkdtempSync3(join5(tmpdir3(), p)));
+var tempDir = (p) => realpathSync2(mkdtempSync3(join6(tmpdir3(), p)));
 var runPrompt = (bin, prompt, model = "claude-opus-5-5", timeoutMs = 60000, env = {}) => runArgs(bin, [
   "-p",
   prompt,
@@ -39674,13 +39683,13 @@ var runArgs = async (bin, args, {
       config: mk("cc-run-cfg-"),
       project: mk("cc-run-proj-")
     };
-    const shim = join5(dirs.home, ".probe-bin");
+    const shim = join6(dirs.home, ".probe-bin");
     mkdirSync3(shim);
-    writeFileSync3(join5(shim, "security"), `#!/bin/sh
+    writeFileSync3(join6(shim, "security"), `#!/bin/sh
 [ "$1" = "-i" ] && cat >/dev/null
 exit 44
 `);
-    chmodSync(join5(shim, "security"), 493);
+    chmodSync(join6(shim, "security"), 493);
     const requests = [];
     stub = Bun.serve({
       port: 0,
@@ -39728,8 +39737,8 @@ exit 44
       if (k.toUpperCase() in fixed || UNSAFE.test(k) || v.includes("sk-ant-"))
         throw new Error(`env ${k} is not allowed: run fixes it, or it could carry a credential or route a request`);
     for (const [name, body] of Object.entries(files)) {
-      mkdirSync3(dirname2(join5(dirs.project, name)), { recursive: true });
-      writeFileSync3(join5(dirs.project, name), body);
+      mkdirSync3(dirname2(join6(dirs.project, name)), { recursive: true });
+      writeFileSync3(join6(dirs.project, name), body);
     }
     const p = Bun.spawn([bin, ...args.map((a) => a.replaceAll("<project-dir>", dirs.project))], {
       cwd: dirs.project,
@@ -39774,7 +39783,8 @@ exit 44
     const bad = requests.filter((r) => r.fakeKey === false || r.host !== self);
     if (bad.length)
       throw new Error(`a request had another host or key: ${bad.map((r) => `${r.host}${r.path}`).join(", ")}`);
-    return { exit, requests, stdout: out, stderr, events, dirs };
+    const wrote = filesOf(dirs.config);
+    return { exit, requests, stdout: out, stderr, events, files: wrote, dirs };
   } finally {
     stub?.stop(true);
     for (const d of made)
@@ -39809,7 +39819,7 @@ var installed = (version) => {
     throw new Error(`run and cli take an installed version; installed: ${all.map((i) => i.version).join(", ") || "none"}`);
   return bin;
 };
-group("code", "Read the code inside a Claude Code binary: list installs or modules, search literal text, find code by plain words, read a module slice, prepare a cleaned index for release diffs, run a prompt in an installed version against a local fake API to see the text it sends, or run it with other args (cli), such as a subcommand.", "action", {
+group("code", "Read the code inside a Claude Code binary: list installs or modules, search literal text, find code by plain words, read a module slice, prepare a cleaned index for release diffs, run a prompt in an installed version against a local fake API to see the text it sends, or run it with other args (cli), such as a subcommand; with `query`, cli names each request, stream, and transcript file that holds that text.", "action", {
   installs: () => {
     const installs = listInstalls();
     return text(installs.length ? installs.map((i) => `- ${i.version}${i.current ? " (current)" : ""}  ${i.path}`).join(`
@@ -39926,7 +39936,7 @@ ${t.slice(start, end)}${said}`, {
       result: out
     });
   },
-  cli: async ({ args, files, version, env }) => {
+  cli: async ({ args, files, version, env, query }) => {
     if (!args?.length)
       throw new Error('cli needs args, such as ["auto-mode", "config"]');
     const bin = installed(version);
@@ -39936,12 +39946,14 @@ ${t.slice(start, end)}${said}`, {
     });
     const sent = r.requests.map((x) => `${x.method} ${x.path}`);
     const tools = toolNames(r);
+    const found = query === undefined ? undefined : placesOf(r, query);
     const stdout = clip(r.stdout, 4000);
     const stderr = clip(r.stderr, 2000);
-    return text(`${bin.version}: exit ${r.exit}, ${sent.length} requests.${tools.length ? `
-tools: ${tools.map((t) => t.join(" ")).join(" | ")}` : ""}
+    return text(`${bin.version}: exit ${r.exit}, ${sent.length} requests, files: ${Object.keys(r.files).join(", ") || "none"}.${tools.length ? `
+tools: ${tools.map((t) => t.join(" ")).join(" | ")}` : ""}${found ? `
+query found in: ${found.join("; ") || "nothing"}` : ""}
 stdout: ${stdout}
-stderr: ${stderr}`, { exit: r.exit, requests: sent, tools, stdout, stderr });
+stderr: ${stderr}`, { exit: r.exit, requests: sent, tools, found, stdout, stderr });
   },
   prepare: ({ version }) => {
     const r = prepared(version);
@@ -41559,8 +41571,8 @@ ${Object.entries(r.functions).map(([n, s]) => `- ${n}: ${s}`).join(`
 });
 
 // inspect/mcp/src/mcp/release.ts
-import { existsSync as existsSync6, readFileSync as readFileSync6 } from "fs";
-import { dirname as dirname4, join as join6 } from "path";
+import { existsSync as existsSync6, readFileSync as readFileSync7 } from "fs";
+import { dirname as dirname4, join as join7 } from "path";
 
 // inspect/mcp/src/explain.ts
 var CONST = String.raw`(?:!0|!1|null|void 0|""|-?\d+(?:\.\d+)?|\[\]|\{\}|"(?:[^"\\]|\\.)*")`;
@@ -41657,12 +41669,12 @@ var explain = (ix, name, cap = 40) => {
 };
 
 // inspect/mcp/src/notes.ts
-import { existsSync as existsSync5, mkdirSync as mkdirSync4, readFileSync as readFileSync5, writeFileSync as writeFileSync4 } from "fs";
+import { existsSync as existsSync5, mkdirSync as mkdirSync4, readFileSync as readFileSync6, writeFileSync as writeFileSync4 } from "fs";
 import { dirname as dirname3 } from "path";
 var STOP = new Set("added fixed improved changed which there their about after before being would could should these those where while other through without within instead claude still first every again showing shows error errors their".split(" "));
 var readNotes = (version, file) => {
   if (existsSync5(file))
-    return readFileSync5(file, "utf8");
+    return readFileSync6(file, "utf8");
   const r = Bun.spawnSync([
     "gh",
     "release",
@@ -41831,10 +41843,10 @@ ${unitDiff(c, DIFF_LINES).join(`
       throw new Error(`no install older than ${b.index.version}; give from`);
     const a = prepared(older);
     const root = dirname4(b.dir);
-    const report = join6(root, "diff", "report.md");
-    const items = existsSync6(report) ? readFileSync6(report, "utf8").split(`
+    const report = join7(root, "diff", "report.md");
+    const items = existsSync6(report) ? readFileSync7(report, "utf8").split(`
 `).filter((l) => l.startsWith("- ")) : [];
-    const lines = checkNotes(readNotes(b.index.version, join6(root, "notes.md")), diffIndexes(a.index, b.index), items);
+    const lines = checkNotes(readNotes(b.index.version, join7(root, "notes.md")), diffIndexes(a.index, b.index), items);
     const count = (k) => lines.filter((l) => l.status === k).length;
     return text(`${b.index.version} notes against ${a.index.version}: ${lines.length} lines, ${count("matched")} matched, ${count("gated")} gated, ${count("unmatched")} unmatched. A match is a lead to read, not a proof.
 ${lines.map((l) => {

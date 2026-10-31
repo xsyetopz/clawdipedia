@@ -4,7 +4,7 @@ import { cut, lines as linesOf } from "../diff.ts";
 import { findUnits } from "../find.ts";
 import { prepared } from "../prepare.ts";
 import { readable } from "../readable.ts";
-import { resultText, toolNames } from "../requests.ts";
+import { placesOf, resultText, toolNames } from "../requests.ts";
 import { runArgs, runPrompt, userText } from "../run.ts";
 import {
   type Args,
@@ -43,7 +43,7 @@ group<
   }
 >(
   "code",
-  "Read the code inside a Claude Code binary: list installs or modules, search literal text, find code by plain words, read a module slice, prepare a cleaned index for release diffs, run a prompt in an installed version against a local fake API to see the text it sends, or run it with other args (cli), such as a subcommand.",
+  "Read the code inside a Claude Code binary: list installs or modules, search literal text, find code by plain words, read a module slice, prepare a cleaned index for release diffs, run a prompt in an installed version against a local fake API to see the text it sends, or run it with other args (cli), such as a subcommand; with `query`, cli names each request, stream, and transcript file that holds that text.",
   "action",
   {
     installs: () => {
@@ -189,7 +189,7 @@ group<
         },
       );
     },
-    cli: async ({ args, files, version, env }) => {
+    cli: async ({ args, files, version, env, query }) => {
       if (!args?.length)
         throw new Error('cli needs args, such as ["auto-mode", "config"]');
       const bin = installed(version);
@@ -199,11 +199,12 @@ group<
       });
       const sent = r.requests.map((x) => `${x.method} ${x.path}`);
       const tools = toolNames(r);
+      const found = query === undefined ? undefined : placesOf(r, query);
       const stdout = clip(r.stdout, 4000);
       const stderr = clip(r.stderr, 2000);
       return text(
-        `${bin.version}: exit ${r.exit}, ${sent.length} requests.${tools.length ? `\ntools: ${tools.map((t) => t.join(" ")).join(" | ")}` : ""}\nstdout: ${stdout}\nstderr: ${stderr}`,
-        { exit: r.exit, requests: sent, tools, stdout, stderr },
+        `${bin.version}: exit ${r.exit}, ${sent.length} requests, files: ${Object.keys(r.files).join(", ") || "none"}.${tools.length ? `\ntools: ${tools.map((t) => t.join(" ")).join(" | ")}` : ""}${found ? `\nquery found in: ${found.join("; ") || "nothing"}` : ""}\nstdout: ${stdout}\nstderr: ${stderr}`,
+        { exit: r.exit, requests: sent, tools, found, stdout, stderr },
       );
     },
     prepare: ({ version }) => {

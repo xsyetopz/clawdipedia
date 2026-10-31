@@ -1,5 +1,8 @@
 import { expect, test } from "bun:test";
-import { resultText, toolNames } from "../src/requests.ts";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { filesOf, placesOf, resultText, toolNames } from "../src/requests.ts";
 import type { Sent } from "../src/run.ts";
 
 const sent = (path: string, body: unknown): Sent => ({
@@ -22,6 +25,40 @@ test("toolNames lists the tools of each messages request and skips other request
     ],
   });
   expect(names).toEqual([["Bash", "Glob"], []]);
+});
+
+test("placesOf names each request, stream, and file that holds the text", () => {
+  const places = placesOf(
+    {
+      requests: [
+        sent("/v1/messages", { messages: [{ content: "a tok-123 b" }] }),
+        sent("/v1/messages/count_tokens", { messages: [] }),
+      ],
+      stdout: "x tok-123",
+      stderr: "",
+      files: { "projects/p/s.jsonl": '{"m":"tok-123"}', "other.jsonl": "{}" },
+    },
+    "tok-123",
+  );
+  expect(places).toEqual([
+    "request 1 POST /v1/messages",
+    "stdout",
+    "file projects/p/s.jsonl",
+  ]);
+});
+
+test("filesOf reads the JSONL files under a folder by relative path", () => {
+  const dir = mkdtempSync(join(tmpdir(), "files-of-"));
+  try {
+    mkdirSync(join(dir, "projects", "p"), { recursive: true });
+    writeFileSync(join(dir, "projects", "p", "s.jsonl"), "{}\n");
+    writeFileSync(join(dir, "notes.txt"), "no");
+    expect(filesOf(dir)).toEqual({
+      [join("projects", "p", "s.jsonl")]: "{}\n",
+    });
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test("resultText reads the last result event", () => {
