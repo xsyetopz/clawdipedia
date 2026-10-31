@@ -4,10 +4,6 @@
     "probes": [],
     "note": "embedded bfs and ugrep gate read in the cleaned 2.1.316 code (chunk-qd604jgh.js); tool lists checked with cc-inspect code cli against the local stub for 2.1.314 and 2.1.316"
   },
-  "docs/reference/probes.md#managed-folder-probe:51acf199": {
-    "kind": "behaviour",
-    "probes": ["managed.baseline.mcp-run"]
-  },
   "docs/how-it-works/account-and-access.md#when-it-asks-again:7d66fe76": {
     "kind": "manual",
     "probes": [],
@@ -981,7 +977,7 @@
     "probes": [],
     "note": "program behaviour (approver set next to tool.check); no probe checks it yet"
   },
-  "docs/reference/probes.md#managed-folder-probe:ae13d6a6": {
+  "docs/reference/probes.md#managed-folder-probe:4ab664b7": {
     "kind": "behaviour",
     "probes": [
       "managed.baseline.agent-mcp",

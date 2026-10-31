@@ -12,7 +12,7 @@ server (`inspect/mcp/dist/server.js`) from a stdio client, with `CC_INSPECT_CACH
 - [x] 1.2 `bun run release:prompts -- --from 2.1.314 --to 2.1.316`, which renders `docs/prompts/`.
   Review `git diff docs/prompts/`.
 - [x] 1.3 `bun run release:probe:live -- --yes`. Standing approval is in `CLAUDE.local.md`. Done: 6 cases ok, 0 invalid.
-- [ ] 1.4 `bun run release:probe:managed`. It needs the user to run two `sudo` commands.
+- [x] 1.4 `bun run release:probe:managed`. It needs the user to run two `sudo` commands. Done: 55 cases ok, 0 invalid. Only the baseline MCP start order changed; `docs/reference/probes.md` names `2.1.316`.
 
 ## 2. Pages from the Diff
 
@@ -76,4 +76,4 @@ Check each fact again in `2.1.316` before a page states it. Keep claudetto's mea
 - [x] 6.2 `bun run version:bump -- clawdipedia-docs patch`, and bump `clawdipedia-docs-cli` with it.
 - [x] 6.3 One `CHANGELOG.md` entry.
 - [x] 6.4 `bun run schemas:check` and `bun run verify:locked`.
-- [ ] 6.5 Review of the diff, then commit. Do not push: the user chose a local commit for this release.
+- [x] 6.5 Review of the diff, then commit. The user later chose "Continue all", which pushes each group. Done: `check:docs`, markdownlint, and `release:facts --check` pass.
